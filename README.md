@@ -1,4 +1,4 @@
-# DHT11 Interfacing Zybo PL.  
+# DHT11 Interfacing Zynq PL.  
 
 ## Software Requirement
   1) Xilinx Vivado

@@ -17,4 +17,4 @@
 
 
 Any issue mail at 
-Kayasdev@gmail.com or raise a issue
+Kayasdev@gmail.com or raise an issue

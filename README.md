@@ -7,7 +7,7 @@
   4) Linux kernel source 
 ## Hardware
 1) Connect DHT11  data pin to any pin of zynq device 
-2) Create a Design in Vivado with zynw processor.
+2) Create a Design in Vivado with zynq processor.
 3) Add local repo as ip_repo folder
 
 ## Software

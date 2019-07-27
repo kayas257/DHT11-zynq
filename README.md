@@ -17,6 +17,8 @@
 
 ## NOTE
 * This repo includes in source file, you may have to create ip block out of it and spawn it in ur design.
-* To use kernel driver you need device tree which has to be included while building kernel. 
+* To use kernel driver you need device tree which has to be included while building kernel.
+* Please remember to chnage baseaddress according to your design
+
 Any issue mail at 
 Kayasdev@gmail.com or raise an issue

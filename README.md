@@ -1,6 +1,6 @@
 # DHT11 Interfacing Zynq PL.  
 
-## Software Requirement
+## Tool Requirement
   1) Xilinx Vivado
   2) Xilinx SDK (for standalone software)
   3) Any C/C++ IDE for (Linux software)
@@ -15,6 +15,8 @@
 2) C/C++ using mmap to map physical address
 3) Kernel code with character driver / misc platform driver(my case)
 
-
+## NOTE
+* This repo includes in source file, you may have to create ip block out of it and spawn it in ur design.
+* To use kernel driver you need device tree which has to be included while building kernel. 
 Any issue mail at 
 Kayasdev@gmail.com or raise an issue

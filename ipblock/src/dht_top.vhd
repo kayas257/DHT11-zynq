@@ -56,7 +56,7 @@ edge_detect:process(clk,rst)
         if rst='0' then
             input_sync<="00";
         else
-        --input_sync<=input_sync(0)&data_s;
+       
         input_sync<=input_sync(0)&data_s;
         end if;
     end if;
@@ -74,8 +74,6 @@ counter: process(clk)
         else
             if rst_counter='1' then
                 count<=0;
-            --elsif count>Delay_200_ms then
-             --   count<=0;
             else
                 count<=count+1;
             end if;
@@ -122,7 +120,7 @@ end process;
 fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
  begin
   
-   --  if rising_edge(clk) then
+   
        next_state<=curr_state; 
        rst_counter<='0';
        en<='1';
@@ -130,13 +128,13 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
        set_one<='0';
        set_zero<='0'; 
        end_p <='0';
-   --    led<="0000";
+   
     case curr_state is
         when Init =>
             if device_enable='1' then
                 rst_counter<='1'; 
                 next_state<=Idle;
-             --   led<="1011";
+           
             end if;
         when Idle =>
             en<='0';
@@ -144,15 +142,9 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
                 next_state<=Request;
                 rst_counter<='1';
              end if;
-         --   led<="0001";
+         
         when Request =>
-              --  en<='0';
-               -- data_s<='0';
-           -- if count=Delay_30_us then
-                next_state<=Response;
-            --       -- data_s<='1';
-            --end if;      
-          --  led<="0010";
+              next_state<=Response;
         when Response =>
             if falling_sig then
                 next_state<=Response_1;
@@ -161,78 +153,72 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
             if count>Delay_100_ms then
                 next_state<=Init;
             end if;
-           -- led<="0011";
+         
         when Response_1 =>
             if rising_sig then
                 next_state<=Response_2;
                 rst_counter<='1'; 
             end if;
-          --  led<="0100";
             if count>Delay_100_ms then
-                            next_state<=Init;
-                        end if;
+                next_state<=Init;
+            end if;
         when Response_2 =>
-             if falling_sig then
+            if falling_sig then
                 next_state<=Data;
                 rst_counter<='1'; 
-              end if;
-            --  led<="0101";
-              if count>Delay_100_ms then
-                              next_state<=Init;
-                          end if;
+            end if;
+           
+            if count>Delay_100_ms then
+                next_state<=Init;
+            end if;
         when Data =>
-             if rising_sig then
+            if rising_sig then
                 next_state<=Data_1;
                 rst_counter<='1'; 
-             end if;
-             if data_count=0 then
-                     rst_counter<='1';
-                 next_state<=End_process;
-              end if;
-            --  led<="0001";
-              if count>Delay_100_ms then
-                              next_state<=Init;
-                          end if;
+            end if;
+            if data_count=0 then
+                rst_counter<='1';
+                next_state<=End_process;
+            end if;
+            
+            if count>Delay_100_ms then
+                next_state<=Init;
+            end if;
         when Data_1  =>
-             if  falling_sig then
-                 if count<= Delay_30_us then
-                    --dec<='1';
+            if  falling_sig then
+                if count<= Delay_30_us then
                     set_zero<='1';
-                 elsif count<= Delay_75_us then
-                    --dec<='1';
+                elsif count<= Delay_75_us then
                     set_one<='1';
-                 else
-                  --  led<="1010";
-                 end if;
-             next_state<=Data; 
-             end if;
-             --led<="0001";
-             if count>Delay_100_ms then
-                             next_state<=Init;
-                         end if;
+                else
+                end if;
+                next_state<=Data; 
+            end if;
+            
+            if count>Delay_100_ms then
+               next_state<=Init;
+            end if;
          when End_process =>
             if count=Delay_1s then
                 next_state<=Init;
                 rst_counter<='1';
                 end_p <='1';
             end if;
-         --   led<="1001";  
+          
         when others =>
-           -- led<="1101";
-
+         
     end case;
-  --  end if;
+ 
  end process;
  
 --concurrent statement
---data_in<='Z' when en='1' else '0';
+
  u1: iobuf
  generic map(
  drive =>12,
  iostandard =>"lvcmos33",
  slew=>"slow")
-
- port map(
+  port map(
  o=>data_s,
  io=>data_in,
  i=>'0',

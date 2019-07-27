@@ -8,7 +8,9 @@
 ## Hardware
 * Connect DHT11  data pin to any pin of zynq device 
 * Create a Design in Vivado with zynq processor.
-* Add local repo as ip_repo folder
+* Add local repo as ipblock folder
+* Add DHT11 from ip catalog
+
 
 ## Software
 * Xilinx SDK for bare metal coding

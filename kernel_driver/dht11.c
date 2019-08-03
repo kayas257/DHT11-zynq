@@ -16,7 +16,7 @@
 ******************************************************************
 *               Revision Detail
 *  | Date           | Comment                     | Author       |
-*  | 23.jul.2019:- | First version                | Kayas Ahmed  |
+*  | 25.juni.2019:- | First version(not working)  | Kayas Ahmed  |
 *
 *
 *
@@ -40,16 +40,18 @@
 #include <linux/fs.h>
 #include <linux/of.h>        
 
-#define REG_STATUS      0x00
+#define REG_CTRL        0x00
 #define REG_DEBUG       0x04
 #define REG_TEMPERATURE 0x08 
 #define REG_HUMIDITY    0x0c
 #define REG_CRC         0x10
 #define REG_ACK         0x14
         
-
+	
+#define ENABLE_DEVICE _IOR('a','a',int32_t*)
+#define DISABLE_DEVICE _IOR('a','b',int32_t*)
 /*@struct dht11
- * @dhtstatus(32 bit status)
+ dhtstatus(32 bit status)
  *
  *
  */
@@ -69,7 +71,7 @@
 
 struct dht_sensor_data
 {
-	uint32_t status;
+	uint32_t ctrl;
 	uint32_t debug;
 	uint32_t temp;
 	uint32_t humidity;
@@ -79,7 +81,7 @@ struct dht11_dev
 {
 	void  *regs;
         struct miscdevice mdev;
-	spinlock_t *lock;
+	spinlock_t lock;
 	struct platform_device *pdev;
 	struct dht_sensor_data dht_data;
 	struct tasklet_struct tasklet;
@@ -117,13 +119,13 @@ static void dht11_do_tasklet(unsigned long data)
 {
 	struct dht11_dev *priv= (struct dht11_dev *)data;
 	dev_info(&priv->pdev->dev, "Tasklet : \n");
-	spin_lock(priv->lock);
-	priv->dht_data.status=dht11_read(priv->regs,REG_STATUS);
+	//spin_lock(&priv->lock);
+	//priv->dht_data.=dht11_read(priv->regs,REG_STATUS);
 	priv->dht_data.debug=dht11_read(priv->regs,REG_DEBUG);
 	priv->dht_data.temp=dht11_read(priv->regs,REG_TEMPERATURE);
 	priv->dht_data.humidity=dht11_read(priv->regs,REG_HUMIDITY);
 	priv->dht_data.crc=dht11_read(priv->regs,REG_CRC);
-	spin_unlock(priv->lock);
+	//spin_unlock(&priv->lock);
 	
 }
 
@@ -134,8 +136,12 @@ dht11_handle_irq(int irq, void *ctx)
 struct dht11_dev *priv=ctx;
 
 
+	unsigned long flags;
 	dev_info(&priv->pdev->dev, "IRQ : \n");
+	spin_lock_irqsave(&priv->lock, flags);
+	//dht11_do_tasklet(ctx);
 	tasklet_schedule(&priv->tasklet);
+	spin_unlock_irqrestore(&priv->lock, flags);
         dht11_write(priv->regs,REG_ACK,1);
 	return IRQ_HANDLED;
 
@@ -150,9 +156,12 @@ static ssize_t dht_read(struct file *file, char __user *buf, size_t count,loff_t
     struct  dht11_dev  *priv = to_my_struct(file); 
     int ret;
 	unsigned long flags;
-	spin_lock(priv->lock);
+
+	spin_lock_irqsave(&priv->lock, flags);
+	//spin_lock(&priv->lock);
 	ret=copy_to_user(buf,&priv->dht_data,sizeof(priv->dht_data));
-	spin_unlock(priv->lock);
+	spin_unlock_irqrestore(&priv->lock, flags);
+	//spin_unlock(&priv->lock);
     return ret;
 }
 
@@ -162,8 +171,14 @@ dht11_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         struct dht11_dev *priv = to_my_struct(file);
 
         switch (cmd) {
-       case 0x50:
-          break;	
+       case ENABLE_DEVICE:
+       		dht11_write(priv->regs,REG_CTRL,1);
+		dev_info(&priv->pdev->dev, "Device enabled\n");
+		break;
+       case DISABLE_DEVICE:
+       		dht11_write(priv->regs,REG_CTRL,0);
+		dev_info(&priv->pdev->dev, "Device Disabled \n");
+		break;
 	}
 	return 0;
 }
@@ -181,7 +196,6 @@ static int dht11_probe(struct platform_device *pdev)
 	struct resource *mem_r;
 	struct dht11_dev *priv;
 	void __iomem *mem;
-	spinlock_t *lock; 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (priv==NULL)
 	{
@@ -200,10 +214,12 @@ static int dht11_probe(struct platform_device *pdev)
 		return PTR_ERR(mem);
 	priv->regs=mem;
 	//mutual exclusive use
-	lock = devm_kzalloc(&pdev->dev, sizeof(*lock), GFP_KERNEL);
+	//lock = devm_kzalloc(&pdev->dev, sizeof(*lock), GFP_KERNEL);
+	
+	//priv->lock=lock;
 	tasklet_init(&priv->tasklet, dht11_do_tasklet,(unsigned long)priv);
-	if (!lock)
-		return -ENOMEM;	
+//	if (!lock)
+//		return -ENOMEM;	
         irq = platform_get_irq(pdev, 0);
         if (irq < 0) {
                 dev_err(&pdev->dev, "no IRQ defined: %d\n", irq);
@@ -219,7 +235,6 @@ static int dht11_probe(struct platform_device *pdev)
         }
  
 
-	priv->lock=lock;
         platform_set_drvdata(pdev, priv);
 	
 	priv->mdev.minor  = 200;
@@ -237,7 +252,15 @@ static int dht11_probe(struct platform_device *pdev)
 	return 0;
 
 }
+static int dht11_remove(struct platform_device *pdev)
+{
 
+struct dht11_dev *priv=platform_get_drvdata(pdev);
+	misc_deregister(&priv->mdev);
+	
+
+
+}
 static const struct of_device_id dht11_of_match[] = {
 	{ .compatible = "kayas,dht11", },
 	{ },
@@ -246,6 +269,7 @@ MODULE_DEVICE_TABLE(of, dht11_of_match);
 
  static struct platform_driver dht11_driver = {
 	.probe = dht11_probe,
+	.remove  = dht11_remove,
 	.driver = {
 		.name = "DHT",
 		.of_match_table = of_match_ptr(dht11_of_match),

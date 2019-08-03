@@ -16,8 +16,8 @@
 ******************************************************************
 *               Revision Detail
 *  | Date           | Comment                     | Author       |
-*  | 25.juni.2019:- | First version(not working)  | Kayas Ahmed  |
-*
+*  | 25.juni.2019:- | First version  		  | Kayas Ahmed  |
+*  | 3.Aug.2019:-   | Ioctl Added  		  | Kayas Ahmed  |
 *
 *
 *

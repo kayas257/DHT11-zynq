@@ -1,5 +1,5 @@
 # DHT11 Interfacing Zynq PL.  
-
+DHT11 FPGA VHAL implementation
 ## Tool Requirement
   * Xilinx Vivado
   * Xilinx SDK (for standalone software)

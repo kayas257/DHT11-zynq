@@ -1,16 +1,10 @@
 --Kayas Ahmed
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
-
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
 library UNISIM;
 use UNISIM.VComponents.all;
 
@@ -49,7 +43,7 @@ signal dec:std_logic;
 signal set_one,set_zero:std_logic;
 begin
 
---signal edge detector
+-- signal edge detector
 edge_detect:process(clk,rst)
  begin  
     if clk'event and clk='1' then
@@ -119,8 +113,6 @@ end process;
 
 fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
  begin
-  
-   
        next_state<=curr_state; 
        rst_counter<='0';
        en<='1';
@@ -134,8 +126,8 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
             if device_enable='1' then
                 rst_counter<='1'; 
                 next_state<=Idle;
-           
             end if;
+
         when Idle =>
             en<='0';
             if count=Delay_18_ms then
@@ -145,6 +137,7 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
          
         when Request =>
               next_state<=Response;
+
         when Response =>
             if falling_sig then
                 next_state<=Response_1;
@@ -159,9 +152,11 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
                 next_state<=Response_2;
                 rst_counter<='1'; 
             end if;
+
             if count>Delay_100_ms then
                 next_state<=Init;
             end if;
+
         when Response_2 =>
             if falling_sig then
                 next_state<=Data;
@@ -171,11 +166,13 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
             if count>Delay_100_ms then
                 next_state<=Init;
             end if;
+
         when Data =>
             if rising_sig then
                 next_state<=Data_1;
                 rst_counter<='1'; 
             end if;
+
             if data_count=0 then
                 rst_counter<='1';
                 next_state<=End_process;
@@ -184,6 +181,7 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
             if count>Delay_100_ms then
                 next_state<=Init;
             end if;
+
         when Data_1  =>
             if  falling_sig then
                 if count<= Delay_30_us then
@@ -198,6 +196,7 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
             if count>Delay_100_ms then
                next_state<=Init;
             end if;
+
          when End_process =>
             if count=Delay_1s then
                 next_state<=Init;
@@ -211,21 +210,17 @@ fsm:process(curr_state,count,falling_sig,rising_sig,data_count)
  
  end process;
  
---concurrent statement
-
- u1: iobuf
- generic map(
- drive =>12,
- iostandard =>"lvcmos33",
- slew=>"slow")
-  port map(
- o=>data_s,
- io=>data_in,
- i=>'0',
- t=>en);
-
-
-
-
+-- IO buffer
+u1: iobuf
+generic map(
+ drive          => 12,
+ iostandard     => "lvcmos33",
+ slew           => "slow")
+port map(
+ o              => data_s,
+ io             => data_in,
+ i              => '0',
+ t              => en
+);
 
  end Behavioral;

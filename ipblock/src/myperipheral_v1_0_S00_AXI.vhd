@@ -184,16 +184,6 @@ end component;
     end component;
 begin
 
---dht_moduel:dht2
---    port map(
---      clk         => S_AXI_ACLK,
---       rst            => S_AXI_ARESETN ,
---    singer_bus      =>dht11,
---    dataout =>debug,
---    tick_done =>tick_done
-    
---    );
-
     dht_module:dht_top 
         Port map( data_in  =>   dht11,
                clk         =>   S_AXI_ACLK,
@@ -347,38 +337,7 @@ begin
 	                slv_reg0(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
---	          when b"00001" =>
---	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
---	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
---	                -- Respective byte enables are asserted as per write strobes                   
---	                -- slave registor 1
---	                slv_reg1(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
---	              end if;
---	            end loop;
---	          when b"00010" =>
---	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
---	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
---	                -- Respective byte enables are asserted as per write strobes                   
---	                -- slave registor 2
---	                slv_reg2(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
---	              end if;
---	            end loop;
---	          when b"00011" =>
---	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
---	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
---	                -- Respective byte enables are asserted as per write strobes                   
---	                -- slave registor 3
---	                slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
---	              end if;
---	            end loop;
---	          when b"00100" =>
---	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
---	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
---	                -- Respective byte enables are asserted as per write strobes                   
---	                -- slave registor 4
---	                slv_reg4(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
---	              end if;
---	            end loop;
+
               when b"00101" =>
 	            --for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
 	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
